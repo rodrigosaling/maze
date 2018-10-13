@@ -1,3 +1,9 @@
 .hello {
   color: blue;
 }
+
+
+::placeholder {
+  color: gray;
+}
+

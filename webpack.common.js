@@ -4,6 +4,11 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
+const postcssPresetEnv = require('postcss-preset-env');
+const postcssImport = require('postcss-import');
+const cssnano = require('cssnano');
+const autoprefixer =  require('autoprefixer');
+
 const DIST_DIR = path.join(__dirname, 'dist');
 const NODE_MODULES = path.join(__dirname, 'node_modules');
 
@@ -23,8 +28,6 @@ module.exports = {
     }),
     new webpack.HashedModuleIdsPlugin(),
     new MiniCssExtractPlugin({
-      // Options similar to the same options in webpackOptions.output
-      // both options are optional
       filename: '[name].[contenthash].css',
       chunkFilename: '[name].[contenthash].css',
     })
@@ -62,9 +65,19 @@ module.exports = {
         exclude: [NODE_MODULES],
         use: [
           isDevMode ? 'style-loader' : MiniCssExtractPlugin.loader,
-          'css-loader?sourceMap',
-          'postcss-loader',
-          'sass-loader'
+          {loader: 'css-loader?sourceMap', options: {importLoaders: 1}},
+          {
+            loader: 'postcss-loader?sourceMap', options: {
+              ident: 'postcss',
+              plugins: () => [
+                postcssPresetEnv(),
+                postcssImport(),
+                cssnano(),
+                // autoprefixer() // seems that preset-end is already taking care
+              ]
+            }
+          },
+          'sass-loader?sourceMap'
         ]
       },
       {
